@@ -83,13 +83,13 @@ const Home = () => {
                     </thead>
                     <tbody>
                       <tr className="bg-[#0a0a0a]">
-                        <td className="px-6 py-4 text-white w-[100px]" style={{ wordWrap: 'break-word' }}>
+                        <td className="px-6 py-4 text-white w-[100px]" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
                           {word[0]}
                         </td>
-                        <td className="px-6 py-4 w-[50px]" style={{ wordWrap: 'break-word' }}>
+                        <td className="px-6 py-4 w-[50px]" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
                           {word[1]}
                         </td>
-                        <td className="px-6 py-4 w-[50px]" style={{ wordWrap: 'break-word' }}>
+                        <td className="px-6 py-4 w-[50px]" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
                           {word[2]}
                         </td>
                       </tr>
