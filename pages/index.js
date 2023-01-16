@@ -21,8 +21,17 @@ const Center = ({ children }) => {
 
 const checkIfContains = (word, contains) => {
   const lowerCaseContains = contains.toLowerCase()
-  if (word[0].toLowerCase().includes(lowerCaseContains) || word[1].toLowerCase().includes(lowerCaseContains) ||
-  word[2].toLowerCase().includes(lowerCaseContains)) {
+ 
+  let word_ = Array.from(word)
+
+  for (let i = 0; i <= 3; i++) {
+    if (word_[i] === 'undefined') {
+      word_[i] = ''
+    }
+  }
+
+  if (word_[0].toLowerCase().includes(lowerCaseContains) || word_[1].toLowerCase().includes(lowerCaseContains) ||
+  word_[2].toLowerCase().includes(lowerCaseContains)) {
     return true
   }
   return false
@@ -98,7 +107,7 @@ const Home = () => {
                 </Center>
 
                 {deleteWord && (
-                  <div className="bg-[#1a1a1b] rounded-b-xl pb-2">
+                  <div className="bg-[#111] rounded-b-xl pb-2">
                     <Center>
                       <button className="mt-2 border-[1.5px] items-center p-3 rounded-lg border-zinc-800 bg-zinc-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-300" onClick={() => {
                         let toReturn = []
@@ -117,7 +126,7 @@ const Home = () => {
                         setWords(toReturn)
                       }}>
                         <Center>
-                          <svg viewBox="0 0 24 24" className="flex-shrink-0 fill-[#fff] object-contain h-6 w-6"><path d="M19.452 7.5H4.547a.5.5 0 00-.5.545l1.287 14.136A2 2 0 007.326 24h9.347a2 2 0 001.992-1.819L19.95 8.045a.5.5 0 00-.129-.382.5.5 0 00-.369-.163zm-9.2 13a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zm5 0a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zM22 4h-4.75a.25.25 0 01-.25-.25V2.5A2.5 2.5 0 0014.5 0h-5A2.5 2.5 0 007 2.5v1.25a.25.25 0 01-.25.25H2a1 1 0 000 2h20a1 1 0 000-2zM9 3.75V2.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v1.25a.25.25 0 01-.25.25h-5.5A.25.25 0 019 3.75z"></path></svg>
+                          <svg viewBox="0 0 24 24" className="flex-shrink-0 fill-[#fff] object-contain h-6 w-20"><path d="M19.452 7.5H4.547a.5.5 0 00-.5.545l1.287 14.136A2 2 0 007.326 24h9.347a2 2 0 001.992-1.819L19.95 8.045a.5.5 0 00-.129-.382.5.5 0 00-.369-.163zm-9.2 13a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zm5 0a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zM22 4h-4.75a.25.25 0 01-.25-.25V2.5A2.5 2.5 0 0014.5 0h-5A2.5 2.5 0 007 2.5v1.25a.25.25 0 01-.25.25H2a1 1 0 000 2h20a1 1 0 000-2zM9 3.75V2.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v1.25a.25.25 0 01-.25.25h-5.5A.25.25 0 019 3.75z"></path></svg>
                         </Center>
                       </button>
                     </Center>
@@ -177,15 +186,25 @@ const Home = () => {
                   <input onChange={handleMeaningChange} placeholder="Type your word" className="text-white font-[600] w-[10rem] bg-[#111] rounded-lg border-gray-800 border-[2.5px] px-[0.8rem] py-[0.5rem] focus-within:ring focus-within:ring-teal-500 outline-none ease-in-out duration-300" />
                 </div>
                 <button className="text-white font-[600] border-[1.5px] items-center px-6 py-3 rounded-lg border-gray-800 bg-gray-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-500" onClick={() => {
-                  const completeList = [word, synonym, meaning]
+                  let completeList = [word, synonym, meaning]
+                  
+                  for (let i = 0; i <= 3; i++) {
+                    if (completeList[i] === '') {
+                      completeList[i] = 'undefined'
+                    }
+                  }
+
                   if (words.length === 0) {
                     setWords(words.concat([completeList]))
                   }
+
                   for (let element of words) {
-                    if (JSON.stringify(element) != JSON.stringify(completeList)) {
-                      setWords(words.concat([completeList]))
+                    if (JSON.stringify(element) === JSON.stringify(completeList)) {
+                      return
                     }
                   }
+
+                  setWords(words.concat([completeList]))
                   setTimeout(() => {
                     setAddWord(!addWord)
                   }, 50)
