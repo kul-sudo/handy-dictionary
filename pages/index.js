@@ -343,12 +343,7 @@ const removeWord = async (word, synonym, meaning) => {
     .match({ word: word, synonym: synonym, meaning: meaning })
 }
 
-export async function getStaticProps({ req, res }) {
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=59'
-  )
-
+export async function getServerSideProps() {
   const { data } = await supabase
     .from('words')
     .select()
