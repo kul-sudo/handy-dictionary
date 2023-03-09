@@ -11,7 +11,7 @@ const supabase = createClient(
 
 
 const addWordToggleAtom = atom(false)
-const deleteWordToggleAtom = atom(false)
+const deleteWordToggleAtom = atomWithStorage('deleteWordToggle', false)
 const keyboardToggleAtom = atom(false)
 const wordAtom = atom('')
 const synonymAtom = atom('')
@@ -163,7 +163,7 @@ const Home = ({ data }) => {
                     <div className="bg-[#111] rounded-b-xl pb-2">
                       <Center>
                         <button className="mt-2 border-[1.5px] items-center p-3 rounded-lg border-zinc-800 bg-zinc-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-300" onClick={() => {
-                          removeWord(word[0], word[1], word[2])
+                          removeWord(word[0], word[1], word[2]).then(() => window.location.reload())
                         }}>
                           <Center>
                             <svg viewBox="0 0 24 24" className="flex-shrink-0 fill-[#fff] object-contain h-6 w-20"><path d="M19.452 7.5H4.547a.5.5 0 00-.5.545l1.287 14.136A2 2 0 007.326 24h9.347a2 2 0 001.992-1.819L19.95 8.045a.5.5 0 00-.129-.382.5.5 0 00-.369-.163zm-9.2 13a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zm5 0a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zM22 4h-4.75a.25.25 0 01-.25-.25V2.5A2.5 2.5 0 0014.5 0h-5A2.5 2.5 0 007 2.5v1.25a.25.25 0 01-.25.25H2a1 1 0 000 2h20a1 1 0 000-2zM9 3.75V2.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v1.25a.25.25 0 01-.25.25h-5.5A.25.25 0 019 3.75z"></path></svg>
@@ -304,7 +304,7 @@ const Home = ({ data }) => {
                   }
 
                   if (wordTyped.length === 0) {
-                    insertWord(...completeList)
+                    insertWord(...completeList).then(() => window.location.reload())
                   }
 
                   for (let element of data) {
@@ -313,7 +313,7 @@ const Home = ({ data }) => {
                     }
                   }
 
-                  insertWord(...completeList)
+                  insertWord(...completeList).then(() => window.location.reload())
                   setTimeout(() => {
                     setAddWord(!addWord)
                   }, 50)
@@ -344,7 +344,7 @@ const removeWord = async (word, synonym, meaning) => {
 }
 
 export async function getStaticProps() {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('words')
     .select()
 
