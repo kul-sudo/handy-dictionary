@@ -2,8 +2,14 @@ import Head from 'next/head'
 import { Rubik } from '@next/font/google'
 import { useAtom, atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
+import { createClient } from '@supabase/supabase-js'
 
-const wordsAtom = atomWithStorage('words-handy-dictionary', [])
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+)
+
+
 const addWordToggleAtom = atom(false)
 const deleteWordToggleAtom = atom(false)
 const keyboardToggleAtom = atom(false)
@@ -82,16 +88,14 @@ const checkIfContains = (word, contains) => {
   return false
 }
 
-const Home = () => {
-  const [words, setWords] = useAtom(wordsAtom)
-
+const Home = ({ data }) => {
   const [addWord, setAddWord] = useAtom(addWordToggleAtom)
   const [deleteWord, setDeleteWord] = useAtom(deleteWordToggleAtom)
   const [keyboardToggle, setKeyboardToggle] = useAtom(keyboardToggleAtom)
 
-  const [word, setWord] = useAtom(wordAtom)
-  const [synonym, setSynonym] = useAtom(synonymAtom)
-  const [meaning, setMeaning] = useAtom(meaningAtom)
+  const [wordTyped, setWord] = useAtom(wordAtom)
+  const [synonymTyped, setSynonym] = useAtom(synonymAtom)
+  const [meaningTyped, setMeaning] = useAtom(meaningAtom)
   const [searchInput, setSearchInput] = useAtom(searchInputAtom)
   const [typedKeys, setTypedKeys] = useAtom(typedKeysAtom)
 
@@ -99,8 +103,7 @@ const Home = () => {
   const handleSynonymChange = e => setSynonym(e.target.value)
   const handleMeaningChange = e => setMeaning(e.target.value)
   const handleSearchInputChange = e => setSearchInput(e.target.value)
-  const handleTypedKeysInputChange = e => setInputTypedKeys(e.target.value)
-
+  
   return (
     <>
       <Head>
@@ -119,69 +122,59 @@ const Home = () => {
 
       <Center>
         <div className="grid grid-cols-1 mt-7 gap-[3rem]">
-          {Array.from(words).map(word => {
-            if (checkIfContains(word, searchInput))
-            return (
-              <div className="flex flex-col pb-5">
-                <Center>
-                  <table className="table-fixed w-[50rem] text-left text-sm text-gray-400 font-medium">
-                    <thead className="text-xs text-gray-400">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 font-medium">
-                          Word
-                        </th>
-                        <th scope="col" className="px-6 py-3 font-medium">
-                          Synonyms
-                        </th>
-                        <th scope="col" className="px-6 py-3 font-medium">
-                          Meaning
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="bg-[#0a0a0a] rounded-full">
-                        <td className="px-6 py-4 text-white" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
-                          {word[0]}
-                        </td>
-                        <td className="px-6 py-4 w-[50px]" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
-                          {word[1]}
-                        </td>
-                        <td className="px-6 py-4 w-[50px]" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
-                          {word[2]}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </Center>
+          {Array.from(data).map(word => {
+            word = [word.word, word.synonym, word.meaning]
+            
+            if (checkIfContains(word, searchInput)) {
+              return (
+                <div className="flex flex-col pb-5">
+                  <Center>
+                    <table className="table-fixed w-[50rem] text-left text-sm text-gray-400 font-medium">
+                      <thead className="text-xs text-gray-400">
+                        <tr>
+                          <th scope="col" className="px-6 py-3 font-medium">
+                            Word
+                          </th>
+                          <th scope="col" className="px-6 py-3 font-medium">
+                            Synonyms
+                          </th>
+                          <th scope="col" className="px-6 py-3 font-medium">
+                            Meaning
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="bg-[#0a0a0a] rounded-full">
+                          <td className="px-6 py-4 text-white" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
+                            {word[0]}
+                          </td>
+                          <td className="px-6 py-4 w-[50px]" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
+                            {word[1]}
+                          </td>
+                          <td className="px-6 py-4 w-[50px]" style={{ wordWrap: 'break-word', hyphens: 'auto' }}>
+                            {word[2]}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </Center>
 
-                {deleteWord && (
-                  <div className="bg-[#111] rounded-b-xl pb-2">
-                    <Center>
-                      <button className="mt-2 border-[1.5px] items-center p-3 rounded-lg border-zinc-800 bg-zinc-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-300" onClick={() => {
-                        let toReturn = []
-                        let dontAdd = true
-                        for (let element of words) {
-                          if (JSON.stringify([word[0], word[1], word[2]]) !== JSON.stringify(element)) {
-                            toReturn.push(element)
-                          } else {
-                            if (dontAdd) {
-                              dontAdd = false
-                            } else {
-                              toReturn.push(element)
-                            }
-                          }
-                        }
-                        setWords(toReturn)
-                      }}>
-                        <Center>
-                          <svg viewBox="0 0 24 24" className="flex-shrink-0 fill-[#fff] object-contain h-6 w-20"><path d="M19.452 7.5H4.547a.5.5 0 00-.5.545l1.287 14.136A2 2 0 007.326 24h9.347a2 2 0 001.992-1.819L19.95 8.045a.5.5 0 00-.129-.382.5.5 0 00-.369-.163zm-9.2 13a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zm5 0a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zM22 4h-4.75a.25.25 0 01-.25-.25V2.5A2.5 2.5 0 0014.5 0h-5A2.5 2.5 0 007 2.5v1.25a.25.25 0 01-.25.25H2a1 1 0 000 2h20a1 1 0 000-2zM9 3.75V2.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v1.25a.25.25 0 01-.25.25h-5.5A.25.25 0 019 3.75z"></path></svg>
-                        </Center>
-                      </button>
-                    </Center>
-                  </div>
-                )}
-              </div>
-            )
+                  {deleteWord && (
+                    <div className="bg-[#111] rounded-b-xl pb-2">
+                      <Center>
+                        <button className="mt-2 border-[1.5px] items-center p-3 rounded-lg border-zinc-800 bg-zinc-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-300" onClick={() => {
+                          removeWord(word[0], word[1], word[2])
+                        }}>
+                          <Center>
+                            <svg viewBox="0 0 24 24" className="flex-shrink-0 fill-[#fff] object-contain h-6 w-20"><path d="M19.452 7.5H4.547a.5.5 0 00-.5.545l1.287 14.136A2 2 0 007.326 24h9.347a2 2 0 001.992-1.819L19.95 8.045a.5.5 0 00-.129-.382.5.5 0 00-.369-.163zm-9.2 13a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zm5 0a.75.75 0 01-1.5 0v-9a.75.75 0 011.5 0zM22 4h-4.75a.25.25 0 01-.25-.25V2.5A2.5 2.5 0 0014.5 0h-5A2.5 2.5 0 007 2.5v1.25a.25.25 0 01-.25.25H2a1 1 0 000 2h20a1 1 0 000-2zM9 3.75V2.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v1.25a.25.25 0 01-.25.25h-5.5A.25.25 0 019 3.75z"></path></svg>
+                          </Center>
+                        </button>
+                      </Center>
+                    </div>
+                  )}
+                </div>
+              )
+            }
           })}
         </div>
       </Center>
@@ -261,7 +254,7 @@ const Home = () => {
           
           <div className="mt-5 grid grid-cols-8 rounded-xl">
             {Object.keys(allKeys).map(key => (
-              <button onClick={() => setTypedKeys(typedKeys + key)} className="w-[4rem] h-[4rem] text-white border-[1.5px] rounded-lg border-gray-800 bg-gray-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-200">
+              <button onClick={() => setTypedKeys(typedKeys + key)} className="w-[4rem] h-[4rem] text-white border-[1.5px] border-gray-800 bg-gray-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-200">
                 <p>
                   {key}
                 </p>
@@ -302,7 +295,7 @@ const Home = () => {
                   <input onChange={handleMeaningChange} placeholder="Type your word" className="text-white font-[600] w-[10rem] bg-[#111] rounded-lg border-gray-800 border-[2.5px] px-[0.8rem] py-[0.5rem] focus-within:ring focus-within:ring-teal-500 outline-none ease-in-out duration-300" />
                 </div>
                 <button className="text-white font-[600] border-[1.5px] items-center px-6 py-3 rounded-lg border-gray-800 bg-gray-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-500" onClick={() => {
-                  let completeList = [word, synonym, meaning]
+                  let completeList = [wordTyped, synonymTyped, meaningTyped]
                   
                   for (let i = 0; i <= 3; i++) {
                     if (completeList[i] === '') {
@@ -310,17 +303,17 @@ const Home = () => {
                     }
                   }
 
-                  if (words.length === 0) {
-                    setWords(words.concat([completeList]))
+                  if (wordTyped.length === 0) {
+                    insertWord(...completeList)
                   }
 
-                  for (let element of words) {
-                    if (JSON.stringify(element) === JSON.stringify(completeList)) {
+                  for (let element of data) {
+                    if (JSON.stringify([element.word, element.synonym, element.meaning]) === JSON.stringify(completeList)) {
                       return
                     }
                   }
 
-                  setWords(words.concat([completeList]))
+                  insertWord(...completeList)
                   setTimeout(() => {
                     setAddWord(!addWord)
                   }, 50)
@@ -334,6 +327,32 @@ const Home = () => {
       )}
     </>
   )
+}
+
+const insertWord = async (word, synonym, meaning) => {
+  const { data } = await supabase
+    .from('words')
+    .insert({ word: word, synonym: synonym, meaning: meaning })
+    .single()
+}
+
+const removeWord = async (word, synonym, meaning) => {
+  const { data } = await supabase
+    .from('words')
+    .delete()
+    .match({ word: word, synonym: synonym, meaning: meaning })
+}
+
+export async function getStaticProps() {
+  const { data, error } = await supabase
+    .from('words')
+    .select()
+
+  return {
+    props: {
+      data
+    }
+  }
 }
 
 export default Home
