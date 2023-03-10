@@ -9,18 +9,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 )
 
-const addWordToggleAtom = atom(false)
-const deleteWordToggleAtom = atomWithStorage('deleteWordToggle', false)
-const keyboardToggleAtom = atom(false)
-const wordAtom = atom('')
-const synonymAtom = atom('')
-const meaningAtom = atom('')
-const searchInputAtom = atom('')
-const typedKeysAtom = atom('')
-
-const rubik = Rubik({ subsets: ['latin'] })
-
-const allKeys = {
+const armenian = {
   'Ա': 'ա',
   'Բ': 'բ',
   'Գ': 'գ',
@@ -63,6 +52,58 @@ const allKeys = {
   'և': null
 }
 
+const hebrew = {
+  'א': null,
+  'בּ': null,
+  'ב': null,
+  'גּ‎': null,
+  'ג': null,
+  'דּ': null,
+  'ד': null,
+  'ה': null,
+  'ו': null,
+  'ז': null,
+  'ח': null,
+  'ט': null,
+  'י': null,
+  'כ': null,
+  'ךּ': null,
+  'ך‎': null,
+  'ל': null,
+  'מ': null,
+  'ם': null,
+  'נ‎': null,
+  'ן': null,
+  'ס‎': null,
+  'ע': null,
+  'פּ‎': null,
+  'פ‎': null,
+  'ףּ‎': null,
+  'ף‎': null,
+  'צ‎': null,
+  'ץ‎': null,
+  'ק‎': null,
+  'ר‎': null,
+  'שׁ‎': null,
+  'שׂ‎': null,
+  'תּ‎': null,
+  'ת‎': null
+}
+
+
+const addWordToggleAtom = atom(false)
+const deleteWordToggleAtom = atomWithStorage('deleteWordToggle', false)
+const keyboardToggleAtom = atom(false)
+const wordAtom = atom('')
+const synonymAtom = atom('')
+const meaningAtom = atom('')
+const searchInputAtom = atom('')
+const typedKeysAtom = atom('')
+const keyboardKeysAtom = atomWithStorage('keyboardKeys', armenian)
+
+const rubik = Rubik({ subsets: ['latin'] })
+
+
 const Center = ({ children }) => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>{children}</div>
@@ -97,6 +138,7 @@ const Home = ({ data }) => {
   const [meaningTyped, setMeaning] = useAtom(meaningAtom)
   const [searchInput, setSearchInput] = useAtom(searchInputAtom)
   const [typedKeys, setTypedKeys] = useAtom(typedKeysAtom)
+  const [keyboardKeys, setKeyboardKeys] = useAtom(keyboardKeysAtom)
 
   const handleWordChange = e => setWord(e.target.value)
   const handleSynonymChange = e => setSynonym(e.target.value)
@@ -215,50 +257,62 @@ const Home = ({ data }) => {
       </div>
 
       {keyboardToggle && (
-        <div className="select-none p-5 rounded-xl bg-zinc-900 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
-          <Center>
-            <div className="gap-2 flex flex-row items-center">
-              <input value={typedKeys} placeholder="Here is your text" disabled={true} className="text-white font-[600] w-[10rem] bg-[#111] placeholder:font-[600] rounded-lg border-gray-800 border-[2.5px] px-[0.8rem] py-[0.5rem] focus-within:ring focus-within:ring-teal-500 outline-none ease-in-out duration-300" />
-              <div className="cursor-pointer" onClick={() => {
-                navigator.clipboard.writeText(typedKeys)
-              }}>
-                <svg viewBox="0 0 24 24" focusable="false" class="chakra-icon css-onkibi" className="w-5 h-5"><path fill="#fff" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></svg> 
-              </div>
-              <div className="cursor-pointer" onClick={() => {
-                setTypedKeys(typedKeys.slice(0, -1))
-              }}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" version="1.1" id="Layer_1" viewBox="0 0 512 512" className="w-5 h-5">
-                  <g>
+        <div className="select-none p-5 rounded-xl bg-zinc-900 fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
+          <div className="relative">
+            <select onChange={e => {
+              if (e.target.value === 'Hebrew') {
+                setKeyboardKeys(hebrew)
+              } else if (e.target.value === 'Armenian') {
+                setKeyboardKeys(armenian)
+              }
+            }} className="absolute rounded-lg w-[8rem] p-2.5 bg-[#111] border-[2.5px] outline-none border-gray-800 placeholder-gray-40 text-white focus:ring-blue-500 focus:border-blue-500 ease-in-out duration-300">
+              <option value="Armenian">Armenian</option>
+              <option value="Hebrew">Hebew</option>
+            </select>
+            <Center>
+              <div className="gap-2 flex flex-row items-center">
+                <input value={typedKeys} placeholder="Here is your text" disabled={true} className="text-white font-[600] w-[10rem] bg-[#111] placeholder:font-[600] rounded-lg border-gray-800 border-[2.5px] px-[0.8rem] py-[0.5rem] focus-within:ring focus-within:ring-teal-500 outline-none ease-in-out duration-300" />
+                <div className="cursor-pointer" onClick={() => {
+                  navigator.clipboard.writeText(typedKeys)
+                }}>
+                  <svg viewBox="0 0 24 24" focusable="false" class="chakra-icon css-onkibi" className="w-5 h-5"><path fill="#fff" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></svg> 
+                </div>
+                <div className="cursor-pointer" onClick={() => {
+                  setTypedKeys(typedKeys.slice(0, -1))
+                }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" version="1.1" id="Layer_1" viewBox="0 0 512 512" className="w-5 h-5">
                     <g>
                       <g>
-                        <path d="M490.667,64H133.077c-7.196,0-13.906,3.627-17.848,9.647L3.485,244.314c-4.647,7.098-4.647,16.274,0,23.372     l111.744,170.667c3.942,6.02,10.652,9.647,17.848,9.647h357.589c11.782,0,21.333-9.551,21.333-21.333V85.333     C512,73.551,502.449,64,490.667,64z M469.333,405.333H144.609L46.833,256l97.776-149.333h324.725V405.333z"/>
-                        <path d="M198.246,356.418c8.331,8.331,21.839,8.331,30.17,0l70.248-70.248l70.248,70.248c8.331,8.331,21.839,8.331,30.17,0     s8.331-21.839,0-30.17L328.834,256l70.248-70.248c8.331-8.331,8.331-21.839,0-30.17s-21.839-8.331-30.17,0l-70.248,70.248     l-70.248-70.248c-8.331-8.331-21.839-8.331-30.17,0c-8.331,8.331-8.331,21.839,0,30.17L268.495,256l-70.248,70.248     C189.915,334.58,189.915,348.087,198.246,356.418z"/>
+                        <g>
+                          <path d="M490.667,64H133.077c-7.196,0-13.906,3.627-17.848,9.647L3.485,244.314c-4.647,7.098-4.647,16.274,0,23.372     l111.744,170.667c3.942,6.02,10.652,9.647,17.848,9.647h357.589c11.782,0,21.333-9.551,21.333-21.333V85.333     C512,73.551,502.449,64,490.667,64z M469.333,405.333H144.609L46.833,256l97.776-149.333h324.725V405.333z"/>
+                          <path d="M198.246,356.418c8.331,8.331,21.839,8.331,30.17,0l70.248-70.248l70.248,70.248c8.331,8.331,21.839,8.331,30.17,0     s8.331-21.839,0-30.17L328.834,256l70.248-70.248c8.331-8.331,8.331-21.839,0-30.17s-21.839-8.331-30.17,0l-70.248,70.248     l-70.248-70.248c-8.331-8.331-21.839-8.331-30.17,0c-8.331,8.331-8.331,21.839,0,30.17L268.495,256l-70.248,70.248     C189.915,334.58,189.915,348.087,198.246,356.418z"/>
+                        </g>
                       </g>
                     </g>
-                  </g>
-                </svg>
-              </div>
-              <button onClick={() => setKeyboardToggle(false)}>
-                <div className="fixed top-5 right-5">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" className="flex-shrink-0 fill-current object-contain h-6 w-6 text-gray-700 dark:text-gray-300">
-                    <path
-                      fill="currentColor"
-                      d="M.439,21.44a1.5,1.5,0,0,0,2.122,2.121L11.823,14.3a.25.25,0,0,1,.354,0l9.262,9.263a1.5,1.5,0,1,0,2.122-2.121L14.3,12.177a.25.25,0,0,1,0-.354l9.263-9.262A1.5,1.5,0,0,0,21.439.44L12.177,9.7a.25.25,0,0,1-.354,0L2.561.44A1.5,1.5,0,0,0,.439,2.561L9.7,11.823a.25.25,0,0,1,0,.354Z"
-                      />
                   </svg>
                 </div>
-              </button>
-            </div>
-          </Center>
+                <button onClick={() => setKeyboardToggle(false)}>
+                  <div className="fixed top-5 right-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" className="flex-shrink-0 fill-current object-contain h-6 w-6 text-gray-700 dark:text-gray-300">
+                      <path
+                        fill="currentColor"
+                        d="M.439,21.44a1.5,1.5,0,0,0,2.122,2.121L11.823,14.3a.25.25,0,0,1,.354,0l9.262,9.263a1.5,1.5,0,1,0,2.122-2.121L14.3,12.177a.25.25,0,0,1,0-.354l9.263-9.262A1.5,1.5,0,0,0,21.439.44L12.177,9.7a.25.25,0,0,1-.354,0L2.561.44A1.5,1.5,0,0,0,.439,2.561L9.7,11.823a.25.25,0,0,1,0,.354Z"
+                        />
+                    </svg>
+                  </div>
+                </button>
+              </div>
+            </Center>
+          </div>
           
-          <div className="mt-5 grid grid-cols-8 rounded-xl">
-            {Object.keys(allKeys).map(key => (
+          <div className="mt-5 grid grid-cols-8 max-1133px:grid-cols-5 max-755px:grid-cols-4 rounded-xl">
+            {Object.keys(keyboardKeys).map(key => (
               <button onClick={() => setTypedKeys(typedKeys + key)} className="w-[4rem] h-[4rem] text-white border-[1.5px] border-gray-800 bg-gray-900 hover:bg-teal-900 hover:border-teal-600 ease-in-out duration-200">
-                <p>
-                  {key}
+                <p className="outline-none">
+                  {keyboardKeys[key]}
                 </p>
-                <p className="text-gray-400">
-                  {allKeys[key]}
+                <p className="text-gray-400 outline-none">
+                  {key}
                 </p>
               </button>
             ))}
@@ -267,7 +321,7 @@ const Home = ({ data }) => {
       )}
 
       {addWord && (
-        <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
+        <div className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
           <div className="flex justify-center items-center bg-zinc-900 w-[30rem] h-[25rem] rounded-xl border-[1px] border-[#fff] border-opacity-[0.16]">
             <Center>
               <button onClick={() => setAddWord(false)}>
