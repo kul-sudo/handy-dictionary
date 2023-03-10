@@ -9,7 +9,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 )
 
-
 const addWordToggleAtom = atom(false)
 const deleteWordToggleAtom = atomWithStorage('deleteWordToggle', false)
 const keyboardToggleAtom = atom(false)
@@ -343,7 +342,7 @@ const removeWord = async (word, synonym, meaning) => {
     .match({ word: word, synonym: synonym, meaning: meaning })
 }
 
-export async function getServerSideProps({ req, res }) {
+export async function getStaticProps() {
   const { data } = await supabase
     .from('words')
     .select()
